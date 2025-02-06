@@ -440,7 +440,12 @@ addToggleOption(menuKey, name, func, initialState) {
     menu["options"][count][0] = name;
     menu["options"][count][1] = func;
     menu["options"][count][2] = undefined;
-    menu["options"][count][3] = initialState ? "^8[^2ON^8]" : "^8[^1OFF^8]";
+    if(self.ShieldClient){
+        menu["options"][count][3] = initialState ? self.primaryColor + "[^2ON" + self.primaryColor + "]" : self.primaryColor + "[^1OFF" + self.primaryColor + "]";
+    }
+    else{
+       menu["options"][count][3] = initialState ? "^7[^2ON^7]" : "^7[^1OFF^7]";
+    }
     menu["options"][count][4] = initialState;
 
     if (!isDefined(self.menu["dynamicVars"])) {
@@ -479,8 +484,12 @@ toggleBoolOption(menuKey) {
     self.menu["dynamicVars"][optionName] = !self.menu["dynamicVars"][optionName];
 
     selectedOption[4] = self.menu["dynamicVars"][optionName];
-    selectedOption[3] = selectedOption[4] ? "^8[^2ON^8]" : "^8[^1OFF^8]";
-
+    if(self.ShieldClient){
+        selectedOption[3] = selectedOption[4] ? self.primaryColor + "[^2ON" + self.primaryColor + "]" : self.primaryColor + "[^1OFF" + self.primaryColor + "]";
+    }
+    else{
+        selectedOption[3] = selectedOption[4] ? "^7[^2ON^7]" : "^7[^1OFF^7]";
+    }
     if (isDefined(selectedOption[1])) {
         func = selectedOption[1];
         self thread [[func]]();
