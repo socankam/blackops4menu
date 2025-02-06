@@ -6,8 +6,6 @@ init() {
 
 onPlayerConnect() {
     self.Developer = "SoCanKam";
-    self.ShieldClient = true; // Change accordingly.
-    level.MenuName = "Beta v1";
 
     //Every time you add a new menu to the main menu, do it here as well.
     level.MainMenuRegistry = []; // Main Menu
@@ -19,6 +17,13 @@ onPlayerConnect() {
     level.MainMenuRegistry["Teleport Menu"] = &TeleportMenu;
     level.MainMenuRegistry["Character Menu"] = &CharacterMenu;
     level.MainMenuRegistry["All Players Menu"] = &AllPlayersMenu;
+    level.MainMenuRegistry["Account Menu"] = &AccountMenu;
+    level.MainMenuRegistry["Customization Menu"] = &CustomizationMenu;
+
+    self.ShieldClient = true; // Change accordingly.
+
+    self.primaryColor = "^5";
+    self.secondaryColor = "^9";
     return true;
 }
 
@@ -81,6 +86,11 @@ runMenu(menuKey) {
 
     while (self.menu["items"][menuKey]["menuIsOpen"]) {
         if (self AttackButtonPressed()) {
+            if(isDefined(self.SoundEffects)){
+                if(Multiplayer()){
+                    SoundEffect();
+                }
+            }
             self.menu["currentIndex"]++;
             if (self.menu["currentIndex"] >= menu["options"].size) {
                 self.menu["currentIndex"] = 0;
@@ -88,6 +98,11 @@ runMenu(menuKey) {
             wait 0.1;
             refreshMenuDisplay(menuKey);
         } else if (self ADSButtonPressed()) {
+            if(isDefined(self.SoundEffects)){
+                if(Multiplayer()){
+                    SoundEffect();
+                }
+            }
             self.menu["currentIndex"]--;
             if (self.menu["currentIndex"] < 0) {
                 self.menu["currentIndex"] = menu["options"].size - 1;
@@ -131,7 +146,16 @@ runMenu(menuKey) {
 CloseMenu() {
     if (self.ShieldClient) {
         ShieldClearHudElems();
-     }
+    }
+
+    if (isDefined(self.savedWeapon)) {
+        self giveWeapon(self.savedWeapon);
+        wait 0.1;
+        self switchToWeapon(self.savedWeapon);
+        self.savedWeapon = undefined;
+    }
+
+    self SetBlur(0, .01);
 
     self EnableWeapons();
     self EnableOffHandWeapons();
@@ -171,14 +195,14 @@ refreshMenuDisplay(menuKey) {
 
         for (i = startIndex; i < endIndex; i++) {
             option = menu["options"][i];
-            str = "^5" + option[0];
+            str = self.primaryColor + option[0];
 
             if (isDefined(option[3])) {
                 str = str + " " + option[3];
             }
 
             if (i == self.menu["currentIndex"]) {
-                str = "^9-> [ " + str + " ^9] <- ";
+                str = self.secondaryColor + "-> [ " + str + self.secondaryColor + " ] <- ";
             }
 
             hudElemName = "MenuLine" + i;
@@ -206,8 +230,8 @@ refreshMenuDisplay(menuKey) {
             1, 1,
             0.5
         );
-        ShieldHudElemSetText(#"Header", "^5Current Menu: ^9" + menu["title"]);
-        ShieldHudElemSetText(#"Footer", "^8Page " + currentPage + " of " + totalPages + " | ^9" + level.MenuName);
+        ShieldHudElemSetText(#"Header", self.primaryColor + "Current Menu: " + self.secondaryColor + menu["title"]);
+        ShieldHudElemSetText(#"Footer", self.primaryColor + "Page " + currentPage + " of " + totalPages + " | " + self.secondaryColor + self.Developer);
     } 
     else {
         if (!isDefined(menu["screenCleared"]) || !menu["screenCleared"]) {
@@ -261,7 +285,7 @@ ShieldHUDS(){
         self.Size = 8;
 
         for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"TitleBar" + i, "^8_", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"TitleBar" + i, self.primaryColor + "_", 0xFFFFC0EB,
             -199 + i * 10, 93,
             1, 0,
             0, 0,
@@ -269,7 +293,7 @@ ShieldHUDS(){
             );
 
         for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"FooterBar" + i, "^8_", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"FooterBar" + i, self.primaryColor + "_", 0xFFFFC0EB,
             -199 + i * 10, 740,
             1, 0,
             0, 0,
@@ -277,7 +301,7 @@ ShieldHUDS(){
             );
 
         for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"X1" + i, "^8_", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"X1" + i, self.primaryColor + "_", 0xFFFFC0EB,
             -199 + i * 10, 85 - 40,
             1, 0,
             0, 0,
@@ -285,7 +309,7 @@ ShieldHUDS(){
             );
 
         for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"X2" + i, "^8_", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"X2" + i, self.primaryColor + "_", 0xFFFFC0EB,
             -199 + i * 10, 825 - 40,
             1, 0,
             0, 0,
@@ -293,7 +317,7 @@ ShieldHUDS(){
             );
 
         for (i = 0; i < 37; i++)
-            ShieldRegisterHudElem(#"Y1" + i, "^8|", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"Y1" + i, self.primaryColor + "|", 0xFFFFC0EB,
             199, 105 + i * 20 - 40,
             1, 0,
             0, 0,
@@ -301,7 +325,7 @@ ShieldHUDS(){
             );
 
         for (i = 0; i < 37; i++)
-            ShieldRegisterHudElem(#"Y2" + i, "^8|", 0xFFFFC0EB,
+            ShieldRegisterHudElem(#"Y2" + i, self.primaryColor +"|", 0xFFFFC0EB,
             -202, 105 + i * 20 - 40,
             1, 0,
             0, 0,
@@ -320,12 +344,12 @@ ShieldHUDS(){
 
         self.Top += self.TextSize;
 
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"TitleBar" + i, "^8_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"FooterBar" + i, "^8_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X1" + i, "^8_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X2" + i, "^8_");
-        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y1" + i, "^8|");
-        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y2" + i, "^8|");
+        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"TitleBar" + i, self.primaryColor + "_");
+        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"FooterBar" + i, self.primaryColor + "_");
+        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X1" + i, self.primaryColor + "_");
+        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X2" + i, self.primaryColor + "_");
+        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y1" + i, self.primaryColor + "|");
+        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y2" + i, self.primaryColor + "|");
 }
 
 CallFunction(function, params) {
@@ -372,6 +396,21 @@ monitorMenuInput() {
     while (true) {
         if (self ActionSlotOneButtonPressed()) {
             if (!isDefined(self.menu["items"]["Main"]["menuIsOpen"]) || !self.menu["items"]["Main"]["menuIsOpen"]) {
+                if(isDefined(self.MenuBlur)){
+                    if(self.MenuBlur == true){
+                        self SetBlur(13, .01);
+                    }
+                }
+                if(isDefined(self.Briefcase)){
+                    if(Multiplayer()){
+                        if(self.Briefcase) {
+                            self.savedWeapon = self getCurrentWeapon();
+                            self giveWeapon(getWeapon("briefcase_bomb_defuse"));
+                            wait 0.1;
+                            self switchToWeapon(getWeapon("briefcase_bomb_defuse"));
+                        }
+                    }
+                }
                 self.menu["currentIndex"] = 0;
                 self runMenu("Main");
             }
@@ -442,8 +481,6 @@ toggleBoolOption(menuKey) {
     selectedOption[4] = self.menu["dynamicVars"][optionName];
     selectedOption[3] = selectedOption[4] ? "^8[^2ON^8]" : "^8[^1OFF^8]";
 
-    //self iprintln(optionName + " is now " + selectedOption[3]);
-
     if (isDefined(selectedOption[1])) {
         func = selectedOption[1];
         self thread [[func]]();
@@ -480,6 +517,10 @@ setupMenu() {
     self addOption("Main", "Teleport Menu", &OpenSubMenu, "TeleportMenu");
     self addOption("Main", "Character Menu", &OpenSubMenu, "CharacterMenu");
     self addOption("Main", "All Players Menu", &OpenSubMenu, "AllPlayersMenu");
+    if(Zombies()){
+        self addOption("Main", "Account Menu", &OpenSubMenu, "AccountMenu");
+    }
+    self addOption("Main", "Customization Menu", &OpenSubMenu, "CustomizationMenu");
 
     foreach (menuKey, initFunction in level.MainMenuRegistry) {
         self thread [[initFunction]]();

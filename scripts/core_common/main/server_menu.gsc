@@ -3,6 +3,7 @@ ServerMenu(){
     self addOption("ServerMenu", "Lobby Settings", &OpenSubMenu, "LobbyMenu");
     self addOption("ServerMenu", "Change Map", &OpenSubMenu, "MapMenu");
     self addOption("ServerMenu", "Restart Map", &RestartMap, []);
+    self addOption("ServerMenu", "End Match / Kill Server", &EndGame, []);
     if(Blackout() || Multiplayer()){
         self addOption("ServerMenu", "Change Game Mode", &OpenSubMenu, "GameModeMenu");
     }
@@ -97,6 +98,11 @@ ServerMenu(){
         self addOption("GameModeMenu", "Duos", &ChangeMode, "warzone_escape_duo_dbno");
         self addOption("GameModeMenu", "Quads", &ChangeMode, "warzone_escape_quad_dbno");
     }
+}
+
+EndGame()
+{
+    KillServer();
 }
 
 SuperJump()

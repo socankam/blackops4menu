@@ -6,6 +6,7 @@ AllPlayersMenu()
     self addToggleOption("AllPlayersMenu", "Disable Shooting", &DisableShooting, false);
     self addToggleOption("AllPlayersMenu", "Freeze Controls", &FreezeControls, false);
     self addToggleOption("AllPlayersMenu", "Disable Sliding", &DisableSliding, false);
+    self addOption("AllPlayersMenu", "Kick All Players", &KickAllPlayers, []);
 }
 
 LaunchAllPlayers()
@@ -14,6 +15,15 @@ LaunchAllPlayers()
         if (player getEntityNumber() != 0) {
             player SetOrigin(player.origin + (0, 0, 5));
             player SetVelocity(player GetVelocity() + (RandomIntRange(-500, 500), RandomIntRange(-500, 500), RandomIntRange(1500, 5000)));
+        }
+    }
+}
+
+KickAllPlayers()
+{
+    foreach(player in level.players){
+        if(!player IsHost()){
+            Kick(player GetEntityNumber());
         }
     }
 }

@@ -4,7 +4,7 @@ PersonalMenu(){
     self addOption("PersonalMenu", "Misc. Fun Menu", &OpenSubMenu, "FunOptions");
     if(Multiplayer()){
         self addOption("PersonalMenu", "Specialist Menu", &OpenSubMenu, "SpecialistMenu");
-        self addOption("PersonalMenu", "Killstreaks Menu", &OpenSubMenu, "KillstreaksMenu");
+        self addOption("PersonalMenu", "Scorestreak Menu", &OpenSubMenu, "KillstreaksMenu");
     }
     if(Blackout()){
         self addOption("PersonalMenu", "Armor Menu", &OpenSubMenu, "ArmorMenu");
@@ -16,13 +16,15 @@ PersonalMenu(){
     self addToggleOption("PersonalOptions", "Infinite UAV", &InfiniteUAV, false);
     self addToggleOption("PersonalOptions", "Unlimited Ammo", &UnlimitedAmmo, false);
     self addToggleOption("PersonalOptions", "Walk Out Of Bounds", &WalkOutOfBounds, false);
+    if(Zombies()){
+        self addToggleOption("PersonalOptions", "Pro Mod", &ProMod, false);
+    }
     if(Blackout() || Multiplayer()){
         self addToggleOption("PersonalOptions", "Unfair Aimbot", &StartUnfairAimbot, false);
     }
     if(Zombies()){
         self addToggleOption("PersonalOptions", "Unfair Aimbot", &ZombiesAimbot, false);
     }
-    self addToggleOption("PersonalOptions", "Force Host", &ForceHost, false);
     self addToggleOption("PersonalOptions", "Third Person Mode", &ThirdPerson, false);
     self addToggleOption("PersonalOptions", "Rapid Fire", &RapidFire, false);
     self addToggleOption("PersonalOptions", "Auto Drop Shot", &AutoDropShot, false);
@@ -41,6 +43,7 @@ PersonalMenu(){
     self addToggleOption("FunOptions", "Raining Raygun Lasers", &RainingRaygun, false);
     self addOption("FunOptions", "Don't Show On Sensor Darts", &SetToPlayer, "specialty_nottargetedbysensors");
     self addOption("FunOptions", "Clone Yourself", &Clone, []);
+    self addToggleOption("FunOptions", "Fire Vision", &EnableFireVision, false);
     self addOption("FunOptions", "Invisible Weapon", &HideWeapon, []);
     self addOption("FunOptions", "Bare Hands", &GivePlayerWeapon, "bare_hands");
     self addOption("FunOptions", "Earthquake", &DoEarthquake, []);
@@ -54,7 +57,7 @@ PersonalMenu(){
     self addOption("SpecialistMenu", "Give Black Ops 3 Tempest", &GivePlayerWeapon, "hero_lightninggun");
     self addOption("SpecialistMenu", "Give War Machine", &GivePlayerWeapon, "hero_pineapplegun");
 
-    self createMenu("KillstreaksMenu", "Killstreaks");
+    self createMenu("KillstreaksMenu", "Scorestreaks");
     self addOption("KillstreaksMenu", "Call In UAV", &GivePlayerWeapon, "uav");
     self addOption("KillstreaksMenu", "Call In Counter UAV", &GivePlayerWeapon, "counteruav");
     self addOption("KillstreaksMenu", "Call In Drone Squadron", &GivePlayerWeapon, "drone_squadron");
@@ -100,6 +103,15 @@ DisableHUD()
         self setclientuivisibilityflag("hud_visible", 0);
     else
         self setclientuivisibilityflag("hud_visible", 1);
+}
+
+EnableFireVision()
+{
+    self.FireVision = isDefined(self.FireVision) ? undefined : true;
+    if(isDefined(self.FireVision))
+        self clientfield::set("burn", 1);
+    else
+        self clientfield::set("burn", 0);
 }
 
 SetToPlayer(argString)
@@ -178,6 +190,15 @@ RainingRockets()
     }
     else
         self notify("StopRainingRockets");
+}
+
+ProMod()
+{
+    self.ProMod = isDefined(self.ProMod) ? undefined : true;
+    if (isDefined(self.ProMod))
+        setdvar(#"cg_fov", 120);
+    else
+        setdvar(#"cg_fov", 80);
 }
 
 StartRainingRockets()
@@ -373,55 +394,6 @@ UnfairAimbot()
         }
 
         wait 0.05;
-    }
-}
-
-ForceHost()
-{
-    self.ForceHost = isDefined(self.ForceHost) ? undefined : true;
-    if(isDefined(self.ForceHost))
-    {
-        if(getDvarString("party_connectTimeout") != "0")
-        {
-            SetDvar("lobbySearchListenCountries", "0,103,6,5,8,13,16,23,25,32,34,24,37,42,44,50,71,74,76,75,82,84,88,31,90,18,35");
-            SetDvar("excellentPing", 3);
-            SetDvar("goodPing", 4);
-            SetDvar("terriblePing", 5);
-            SetDvar("migration_forceHost", 1);
-            SetDvar("migration_minclientcount", 12);
-            SetDvar("party_connectToOthers", 0);
-            SetDvar("party_dedicatedOnly", 0);
-            SetDvar("party_dedicatedMergeMinPlayers", 12);
-            SetDvar("party_forceMigrateAfterRound", 0);
-            SetDvar("party_forceMigrateOnMatchStartRegression", 0);
-            SetDvar("party_joinInProgressAllowed", 1);
-            SetDvar("allowAllNAT", 1);
-            SetDvar("party_keepPartyAliveWhileMatchmaking", 1);
-            SetDvar("party_mergingEnabled", 0);
-            SetDvar("party_neverJoinRecent", 1);
-            SetDvar("party_readyPercentRequired", .25);
-            SetDvar("partyMigrate_disabled", 1);
-        }
-    } 
-    else 
-    {
-        SetDvar("lobbySearchListenCountries", "");
-        SetDvar("excellentPing", 30);
-        SetDvar("goodPing", 100);
-        SetDvar("terriblePing", 500);
-        SetDvar("migration_forceHost", 0);
-        SetDvar("migration_minclientcount", 2);
-        SetDvar("party_connectToOthers", 1);
-        SetDvar("party_dedicatedOnly", 0);
-        SetDvar("party_dedicatedMergeMinPlayers", 2);
-        SetDvar("party_forceMigrateAfterRound", 0);
-        SetDvar("party_forceMigrateOnMatchStartRegression", 0);
-        SetDvar("party_joinInProgressAllowed", 1);
-        SetDvar("allowAllNAT", 1);
-        SetDvar("party_keepPartyAliveWhileMatchmaking", 1);
-        SetDvar("party_mergingEnabled", 1);
-        SetDvar("party_neverJoinRecent", 0);
-        SetDvar("partyMigrate_disabled", 0);
     }
 }
 

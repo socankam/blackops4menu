@@ -2,6 +2,8 @@ ZombieMenu()
 {
     self createMenu("ZombieMenu", "Zombies Menu");
     if(Zombies()){
+        self addOption("ZombieMenu", "Max Points", &EditPoints, "999999");
+        self addOption("ZombieMenu", "Take All Points", &EditPoints, "0");
         self addOption("ZombieMenu", "Spawn Luna Wolf (Protector)", &SpawnLunaWolf, []);
         self addToggleOption("ZombieMenu", "Zombies Ignore You", &NoTarget, false);
         self addOption("ZombieMenu", "Zombies Have Duck Floaties", &ZombieDuckFloaties, []);
@@ -10,6 +12,12 @@ ZombieMenu()
         self addOption("ZombieMenu", "Teleport All Zombies To You", &TeleportAllZombies, []);
         self addToggleOption("ZombieMenu", "Free Mystery Box", &FreeMysteryBox, false);
         self addToggleOption("ZombieMenu", "Mystery Box Doesn't Move", &FreezeMysteryBox, false); 
+        /*
+        self addOption("ZombieMenu", "Change Round To 25", &ChangeRound, "25");
+        self addOption("ZombieMenu", "Change Round To 50", &ChangeRound, "50");
+        self addOption("ZombieMenu", "Change Round To 75", &ChangeRound, "75");
+        self addOption("ZombieMenu", "Change Round To 100", &ChangeRound, "100");
+        */
     }
     if(Blackout()){
         self addOption("ZombieMenu", "Zombie Spawner", &OpenSubMenu, "ZombieSpawner");
@@ -28,6 +36,10 @@ ZombieMenu()
         self addOption("ZombieSpawner", "Spawn Brutus", &SpawnZombie, "brutus");
         self addOption("ZombieSpawner", "Spawn Avogadro", &SpawnZombie, "avogadro");
     }
+}
+
+EditPoints(Points){
+    self.score = int(Points);
 }
 
 ZombiesAimbot()
@@ -56,6 +68,11 @@ ZombiesAimbot()
     else{
         self notify("StopAimbot");
     }
+}
+
+ChangeRound(Round){
+    world.roundnumber = int(Round) ^ 115;
+    KillAllZombies();
 }
 
 SpawnLunaWolf()
@@ -204,7 +221,6 @@ OpenAllDoors() // From Lucy Menu
 	}
 	wait(1);
 	setdvar(#"zombie_unlock_all", 0);
-    self iPrintLnBold("Doors ^2Opened");
 }
 
 TeleportAllZombies() 
@@ -217,9 +233,9 @@ TeleportAllZombies()
 
 FreeMysteryBox()
 {
-    self.FreezeBox = isDefined(self.FreezeBox) ? undefined : true;
+    self.FreeBox = isDefined(self.FreeBox) ? undefined : true;
  
-    if(isDefined(self.FreezeBox))
+    if(isDefined(self.FreeBox))
     {
         self endon("disconnect");
  
