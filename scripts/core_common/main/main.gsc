@@ -23,7 +23,9 @@ onPlayerConnect() {
     self.ShieldClient = true; // Change accordingly.
 
     self.primaryColor = "^5";
-    self.secondaryColor = "^9";
+    self.secondaryColor = "^3";
+
+    self.ScrollingText = true;
     return true;
 }
 
@@ -36,6 +38,8 @@ onPlayerSpawned() {
     for (i = 0; i < 75; i++) {
         self iprintln("");
     }
+
+    //self thread BouncingText();
 
     self thread initializeMenu();
     self thread setupMenu();
@@ -155,6 +159,10 @@ CloseMenu() {
         self.savedWeapon = undefined;
     }
 
+    self.ScrollingText = false;
+    self notify("menu_closed");
+    self.ScrollingTextThread = undefined;
+
     self SetBlur(0, .01);
 
     self EnableWeapons();
@@ -225,13 +233,13 @@ refreshMenuDisplay(menuKey) {
             #"Footer",
             "",
             0,
-            self.Left, self.Bottom,
+            -875 - 400, 67,
             2, 1,
             1, 1,
             0.5
         );
         ShieldHudElemSetText(#"Header", self.primaryColor + "Current Menu: " + self.secondaryColor + menu["title"]);
-        ShieldHudElemSetText(#"Footer", self.primaryColor + "Page " + currentPage + " of " + totalPages + " | " + self.secondaryColor + self.Developer);
+        ShieldHudElemSetText(#"Footer", self.primaryColor + "Page (" + currentPage + " of " + totalPages + ") | " + self.secondaryColor + self.Developer + self.primaryColor + " | ");
     } 
     else {
         if (!isDefined(menu["screenCleared"]) || !menu["screenCleared"]) {
@@ -274,82 +282,6 @@ refreshMenuDisplay(menuKey) {
             self iPrintln("");
         }
     }
-}
-
-ShieldHUDS(){
-        self.Top = -615;
-        self.Bottom = 65;
-        self.Left = -875 - 400;
-
-        self.TextSize = 31;
-        self.Size = 8;
-
-        for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"TitleBar" + i, self.primaryColor + "_", 0xFFFFC0EB,
-            -199 + i * 10, 93,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"FooterBar" + i, self.primaryColor + "_", 0xFFFFC0EB,
-            -199 + i * 10, 740,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"X1" + i, self.primaryColor + "_", 0xFFFFC0EB,
-            -199 + i * 10, 85 - 40,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        for (i = 0; i < 40; i++)
-            ShieldRegisterHudElem(#"X2" + i, self.primaryColor + "_", 0xFFFFC0EB,
-            -199 + i * 10, 825 - 40,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        for (i = 0; i < 37; i++)
-            ShieldRegisterHudElem(#"Y1" + i, self.primaryColor + "|", 0xFFFFC0EB,
-            199, 105 + i * 20 - 40,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        for (i = 0; i < 37; i++)
-            ShieldRegisterHudElem(#"Y2" + i, self.primaryColor +"|", 0xFFFFC0EB,
-            -202, 105 + i * 20 - 40,
-            1, 0,
-            0, 0,
-            0.50
-            );
-
-        ShieldRegisterHudElem(
-            #"Header",
-            "",
-            0,
-            self.Left, self.Top -15,
-            2, 1,
-            1, 1,
-            0.6
-        );
-
-        self.Top += self.TextSize;
-
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"TitleBar" + i, self.primaryColor + "_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"FooterBar" + i, self.primaryColor + "_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X1" + i, self.primaryColor + "_");
-        for (i = 0; i < 32; i++) ShieldHudElemSetText(#"X2" + i, self.primaryColor + "_");
-        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y1" + i, self.primaryColor + "|");
-        for (i = 0; i < 35; i++) ShieldHudElemSetText(#"Y2" + i, self.primaryColor + "|");
 }
 
 CallFunction(function, params) {
@@ -410,6 +342,10 @@ monitorMenuInput() {
                             self switchToWeapon(getWeapon("briefcase_bomb_defuse"));
                         }
                     }
+                }
+                if (!isDefined(self.ScrollingTextThread) || !self.ScrollingTextThread || !isDefined(self.ScrollingText) || !self.ScrollingText) {
+                    self.ScrollingText = true;
+                    self.ScrollingTextThread = self thread ScrollingText();
                 }
                 self.menu["currentIndex"] = 0;
                 self runMenu("Main");
